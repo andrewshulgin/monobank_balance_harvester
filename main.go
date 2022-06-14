@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -161,11 +162,23 @@ func main() {
 	updateBalance()
 
 	if clientInfo.WebHookUrl != webHookUrl {
-		req, err = http.NewRequest("GET", "https://api.monobank.ua/personal/webhook", nil)
+		webHookSetupRequestBody, err := json.Marshal(WebHookSetupRequest{webHookUrl})
+		if err != nil {
+			log.Fatalf("Error: %s\n", err)
+		}
+		req, err = http.NewRequest(
+			"POST",
+			"https://api.monobank.ua/personal/webhook",
+			bytes.NewBuffer(webHookSetupRequestBody),
+		)
+		req.Header.Set("Content-Type", "application/json")
 		req.Header.Add("X-Token", token)
 		resp, err = client.Do(req)
 		if err != nil {
 			log.Fatalf("Error: %s\n", err)
+		}
+		if resp.StatusCode != 200 {
+			log.Printf("Failed to setup webhook: %d\n", resp.StatusCode)
 		}
 	}
 
