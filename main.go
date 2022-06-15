@@ -141,7 +141,11 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", "https://api.monobank.ua/personal/client-info", nil)
+	req, err := http.NewRequest(
+		"GET",
+		"https://api.monobank.ua/personal/client-info",
+		nil,
+	)
 	req.Header.Add("X-Token", token)
 	resp, err := client.Do(req)
 	if err != nil {
@@ -162,12 +166,18 @@ func main() {
 
 	for _, account := range clientInfo.Accounts {
 		if contains(accountIds, account.Id) {
-			accountBalances = append(accountBalances, AccountBalance{account.Id, account.Balance})
+			accountBalances = append(accountBalances, AccountBalance{
+				account.Id,
+				account.Balance,
+			})
 		}
 	}
 	for _, jar := range clientInfo.Jars {
 		if contains(accountIds, jar.Id) {
-			accountBalances = append(accountBalances, AccountBalance{jar.Id, jar.Balance})
+			accountBalances = append(accountBalances, AccountBalance{
+				jar.Id,
+				jar.Balance,
+			})
 		}
 	}
 
@@ -175,7 +185,9 @@ func main() {
 	updateBalance()
 
 	if clientInfo.WebHookUrl != webHookUrl {
-		webHookSetupRequestBody, err := json.Marshal(WebHookSetupRequest{webHookUrl})
+		webHookSetupRequestBody, err := json.Marshal(
+			WebHookSetupRequest{webHookUrl},
+		)
 		if err != nil {
 			log.Fatalf("Error: %s\n", err)
 		}
