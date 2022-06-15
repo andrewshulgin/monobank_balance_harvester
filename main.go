@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 )
 
 type Account struct {
@@ -84,8 +85,18 @@ var webHookUrl = os.Getenv("WEBHOOK_URL")
 var token = os.Getenv("TOKEN")
 var listenAddr = os.Getenv("LISTEN_ADDR")
 var outputFile = os.Getenv("OUTPUT")
+var accountIds = strings.Split(os.Getenv("ACCOUNTS"), ",")
 
 var accountBalances []AccountBalance
+
+func contains(slice []string, item string) bool {
+	for _, a := range slice {
+		if a == item {
+			return true
+		}
+	}
+	return false
+}
 
 func updateBalance() {
 	var sum = 0
@@ -150,12 +161,14 @@ func main() {
 	}
 
 	for _, account := range clientInfo.Accounts {
-		if account.Type == "white" && account.CurrencyCode == 980 {
+		if contains(accountIds, account.Id) {
 			accountBalances = append(accountBalances, AccountBalance{account.Id, account.Balance})
 		}
 	}
 	for _, jar := range clientInfo.Jars {
-		accountBalances = append(accountBalances, AccountBalance{jar.Id, jar.Balance})
+		if contains(accountIds, jar.Id) {
+			accountBalances = append(accountBalances, AccountBalance{jar.Id, jar.Balance})
+		}
 	}
 
 	log.Printf("Accounts: %+v\n", accountBalances)
