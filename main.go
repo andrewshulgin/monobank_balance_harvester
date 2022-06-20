@@ -122,7 +122,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		}
 	}(r.Body)
 	body, err := io.ReadAll(r.Body)
-	w.WriteHeader(http.StatusNoContent)
+	w.WriteHeader(http.StatusOK)
 
 	var webHookRequest WebHookRequest
 	err = json.Unmarshal(body, &webHookRequest)
